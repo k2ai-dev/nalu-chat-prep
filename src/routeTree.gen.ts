@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as DashRouteImport } from './routes/_dash'
 import { Route as DashIndexRouteImport } from './routes/_dash.index'
 import { Route as DashQuestionBankRouteImport } from './routes/_dash.question-bank'
+import { Route as DashHistoryRouteImport } from './routes/_dash.history'
 import { Route as DashExamsRouteImport } from './routes/_dash.exams'
 
 const DashRoute = DashRouteImport.update({
@@ -28,6 +29,11 @@ const DashQuestionBankRoute = DashQuestionBankRouteImport.update({
   path: '/question-bank',
   getParentRoute: () => DashRoute,
 } as any)
+const DashHistoryRoute = DashHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => DashRoute,
+} as any)
 const DashExamsRoute = DashExamsRouteImport.update({
   id: '/exams',
   path: '/exams',
@@ -37,10 +43,12 @@ const DashExamsRoute = DashExamsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof DashIndexRoute
   '/exams': typeof DashExamsRoute
+  '/history': typeof DashHistoryRoute
   '/question-bank': typeof DashQuestionBankRoute
 }
 export interface FileRoutesByTo {
   '/exams': typeof DashExamsRoute
+  '/history': typeof DashHistoryRoute
   '/question-bank': typeof DashQuestionBankRoute
   '/': typeof DashIndexRoute
 }
@@ -48,18 +56,20 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_dash': typeof DashRouteWithChildren
   '/_dash/exams': typeof DashExamsRoute
+  '/_dash/history': typeof DashHistoryRoute
   '/_dash/question-bank': typeof DashQuestionBankRoute
   '/_dash/': typeof DashIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/exams' | '/question-bank'
+  fullPaths: '/' | '/exams' | '/history' | '/question-bank'
   fileRoutesByTo: FileRoutesByTo
-  to: '/exams' | '/question-bank' | '/'
+  to: '/exams' | '/history' | '/question-bank' | '/'
   id:
     | '__root__'
     | '/_dash'
     | '/_dash/exams'
+    | '/_dash/history'
     | '/_dash/question-bank'
     | '/_dash/'
   fileRoutesById: FileRoutesById
@@ -91,6 +101,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashQuestionBankRouteImport
       parentRoute: typeof DashRoute
     }
+    '/_dash/history': {
+      id: '/_dash/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof DashHistoryRouteImport
+      parentRoute: typeof DashRoute
+    }
     '/_dash/exams': {
       id: '/_dash/exams'
       path: '/exams'
@@ -103,12 +120,14 @@ declare module '@tanstack/react-router' {
 
 interface DashRouteChildren {
   DashExamsRoute: typeof DashExamsRoute
+  DashHistoryRoute: typeof DashHistoryRoute
   DashQuestionBankRoute: typeof DashQuestionBankRoute
   DashIndexRoute: typeof DashIndexRoute
 }
 
 const DashRouteChildren: DashRouteChildren = {
   DashExamsRoute: DashExamsRoute,
+  DashHistoryRoute: DashHistoryRoute,
   DashQuestionBankRoute: DashQuestionBankRoute,
   DashIndexRoute: DashIndexRoute,
 }
