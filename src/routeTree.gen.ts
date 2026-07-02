@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as DashRouteImport } from './routes/_dash'
 import { Route as DashIndexRouteImport } from './routes/_dash.index'
+import { Route as DashExamsRouteImport } from './routes/_dash.exams'
 
 const DashRoute = DashRouteImport.update({
   id: '/_dash',
@@ -21,24 +22,32 @@ const DashIndexRoute = DashIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashRoute,
 } as any)
+const DashExamsRoute = DashExamsRouteImport.update({
+  id: '/exams',
+  path: '/exams',
+  getParentRoute: () => DashRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof DashIndexRoute
+  '/exams': typeof DashExamsRoute
 }
 export interface FileRoutesByTo {
+  '/exams': typeof DashExamsRoute
   '/': typeof DashIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_dash': typeof DashRouteWithChildren
+  '/_dash/exams': typeof DashExamsRoute
   '/_dash/': typeof DashIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/exams'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/_dash' | '/_dash/'
+  to: '/exams' | '/'
+  id: '__root__' | '/_dash' | '/_dash/exams' | '/_dash/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -61,14 +70,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashIndexRouteImport
       parentRoute: typeof DashRoute
     }
+    '/_dash/exams': {
+      id: '/_dash/exams'
+      path: '/exams'
+      fullPath: '/exams'
+      preLoaderRoute: typeof DashExamsRouteImport
+      parentRoute: typeof DashRoute
+    }
   }
 }
 
 interface DashRouteChildren {
+  DashExamsRoute: typeof DashExamsRoute
   DashIndexRoute: typeof DashIndexRoute
 }
 
 const DashRouteChildren: DashRouteChildren = {
+  DashExamsRoute: DashExamsRoute,
   DashIndexRoute: DashIndexRoute,
 }
 
