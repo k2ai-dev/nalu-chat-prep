@@ -14,6 +14,7 @@ import { Route as DashIndexRouteImport } from './routes/_dash.index'
 import { Route as DashQuestionBankRouteImport } from './routes/_dash.question-bank'
 import { Route as DashHistoryRouteImport } from './routes/_dash.history'
 import { Route as DashExamsRouteImport } from './routes/_dash.exams'
+import { Route as DashReviewScoreIdRouteImport } from './routes/_dash.review.$scoreId'
 
 const DashRoute = DashRouteImport.update({
   id: '/_dash',
@@ -39,18 +40,25 @@ const DashExamsRoute = DashExamsRouteImport.update({
   path: '/exams',
   getParentRoute: () => DashRoute,
 } as any)
+const DashReviewScoreIdRoute = DashReviewScoreIdRouteImport.update({
+  id: '/review/$scoreId',
+  path: '/review/$scoreId',
+  getParentRoute: () => DashRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof DashIndexRoute
   '/exams': typeof DashExamsRoute
   '/history': typeof DashHistoryRoute
   '/question-bank': typeof DashQuestionBankRoute
+  '/review/$scoreId': typeof DashReviewScoreIdRoute
 }
 export interface FileRoutesByTo {
   '/exams': typeof DashExamsRoute
   '/history': typeof DashHistoryRoute
   '/question-bank': typeof DashQuestionBankRoute
   '/': typeof DashIndexRoute
+  '/review/$scoreId': typeof DashReviewScoreIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -59,12 +67,13 @@ export interface FileRoutesById {
   '/_dash/history': typeof DashHistoryRoute
   '/_dash/question-bank': typeof DashQuestionBankRoute
   '/_dash/': typeof DashIndexRoute
+  '/_dash/review/$scoreId': typeof DashReviewScoreIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/exams' | '/history' | '/question-bank'
+  fullPaths: '/' | '/exams' | '/history' | '/question-bank' | '/review/$scoreId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/exams' | '/history' | '/question-bank' | '/'
+  to: '/exams' | '/history' | '/question-bank' | '/' | '/review/$scoreId'
   id:
     | '__root__'
     | '/_dash'
@@ -72,6 +81,7 @@ export interface FileRouteTypes {
     | '/_dash/history'
     | '/_dash/question-bank'
     | '/_dash/'
+    | '/_dash/review/$scoreId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -115,6 +125,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashExamsRouteImport
       parentRoute: typeof DashRoute
     }
+    '/_dash/review/$scoreId': {
+      id: '/_dash/review/$scoreId'
+      path: '/review/$scoreId'
+      fullPath: '/review/$scoreId'
+      preLoaderRoute: typeof DashReviewScoreIdRouteImport
+      parentRoute: typeof DashRoute
+    }
   }
 }
 
@@ -123,6 +140,7 @@ interface DashRouteChildren {
   DashHistoryRoute: typeof DashHistoryRoute
   DashQuestionBankRoute: typeof DashQuestionBankRoute
   DashIndexRoute: typeof DashIndexRoute
+  DashReviewScoreIdRoute: typeof DashReviewScoreIdRoute
 }
 
 const DashRouteChildren: DashRouteChildren = {
@@ -130,6 +148,7 @@ const DashRouteChildren: DashRouteChildren = {
   DashHistoryRoute: DashHistoryRoute,
   DashQuestionBankRoute: DashQuestionBankRoute,
   DashIndexRoute: DashIndexRoute,
+  DashReviewScoreIdRoute: DashReviewScoreIdRoute,
 }
 
 const DashRouteWithChildren = DashRoute._addFileChildren(DashRouteChildren)
