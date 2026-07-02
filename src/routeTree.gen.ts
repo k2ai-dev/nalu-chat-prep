@@ -9,61 +9,205 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as TestRouteImport } from './routes/test'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as DashRouteImport } from './routes/_dash'
+import { Route as DashIndexRouteImport } from './routes/_dash.index'
+import { Route as DashQuestionBankRouteImport } from './routes/_dash.question-bank'
+import { Route as DashHistoryRouteImport } from './routes/_dash.history'
+import { Route as DashExamsRouteImport } from './routes/_dash.exams'
+import { Route as DashReviewScoreIdRouteImport } from './routes/_dash.review.$scoreId'
 
-const IndexRoute = IndexRouteImport.update({
+const TestRoute = TestRouteImport.update({
+  id: '/test',
+  path: '/test',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashRoute = DashRouteImport.update({
+  id: '/_dash',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashIndexRoute = DashIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => DashRoute,
+} as any)
+const DashQuestionBankRoute = DashQuestionBankRouteImport.update({
+  id: '/question-bank',
+  path: '/question-bank',
+  getParentRoute: () => DashRoute,
+} as any)
+const DashHistoryRoute = DashHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => DashRoute,
+} as any)
+const DashExamsRoute = DashExamsRouteImport.update({
+  id: '/exams',
+  path: '/exams',
+  getParentRoute: () => DashRoute,
+} as any)
+const DashReviewScoreIdRoute = DashReviewScoreIdRouteImport.update({
+  id: '/review/$scoreId',
+  path: '/review/$scoreId',
+  getParentRoute: () => DashRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof DashIndexRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/test': typeof TestRoute
+  '/exams': typeof DashExamsRoute
+  '/history': typeof DashHistoryRoute
+  '/question-bank': typeof DashQuestionBankRoute
+  '/review/$scoreId': typeof DashReviewScoreIdRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/test': typeof TestRoute
+  '/exams': typeof DashExamsRoute
+  '/history': typeof DashHistoryRoute
+  '/question-bank': typeof DashQuestionBankRoute
+  '/': typeof DashIndexRoute
+  '/review/$scoreId': typeof DashReviewScoreIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_dash': typeof DashRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/test': typeof TestRoute
+  '/_dash/exams': typeof DashExamsRoute
+  '/_dash/history': typeof DashHistoryRoute
+  '/_dash/question-bank': typeof DashQuestionBankRoute
+  '/_dash/': typeof DashIndexRoute
+  '/_dash/review/$scoreId': typeof DashReviewScoreIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/sitemap.xml'
+    | '/test'
+    | '/exams'
+    | '/history'
+    | '/question-bank'
+    | '/review/$scoreId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/sitemap.xml'
+    | '/test'
+    | '/exams'
+    | '/history'
+    | '/question-bank'
+    | '/'
+    | '/review/$scoreId'
+  id:
+    | '__root__'
+    | '/_dash'
+    | '/sitemap.xml'
+    | '/test'
+    | '/_dash/exams'
+    | '/_dash/history'
+    | '/_dash/question-bank'
+    | '/_dash/'
+    | '/_dash/review/$scoreId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  DashRoute: typeof DashRouteWithChildren
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TestRoute: typeof TestRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/test': {
+      id: '/test'
+      path: '/test'
+      fullPath: '/test'
+      preLoaderRoute: typeof TestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_dash': {
+      id: '/_dash'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof DashRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_dash/': {
+      id: '/_dash/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof DashIndexRouteImport
+      parentRoute: typeof DashRoute
+    }
+    '/_dash/question-bank': {
+      id: '/_dash/question-bank'
+      path: '/question-bank'
+      fullPath: '/question-bank'
+      preLoaderRoute: typeof DashQuestionBankRouteImport
+      parentRoute: typeof DashRoute
+    }
+    '/_dash/history': {
+      id: '/_dash/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof DashHistoryRouteImport
+      parentRoute: typeof DashRoute
+    }
+    '/_dash/exams': {
+      id: '/_dash/exams'
+      path: '/exams'
+      fullPath: '/exams'
+      preLoaderRoute: typeof DashExamsRouteImport
+      parentRoute: typeof DashRoute
+    }
+    '/_dash/review/$scoreId': {
+      id: '/_dash/review/$scoreId'
+      path: '/review/$scoreId'
+      fullPath: '/review/$scoreId'
+      preLoaderRoute: typeof DashReviewScoreIdRouteImport
+      parentRoute: typeof DashRoute
     }
   }
 }
 
+interface DashRouteChildren {
+  DashExamsRoute: typeof DashExamsRoute
+  DashHistoryRoute: typeof DashHistoryRoute
+  DashQuestionBankRoute: typeof DashQuestionBankRoute
+  DashIndexRoute: typeof DashIndexRoute
+  DashReviewScoreIdRoute: typeof DashReviewScoreIdRoute
+}
+
+const DashRouteChildren: DashRouteChildren = {
+  DashExamsRoute: DashExamsRoute,
+  DashHistoryRoute: DashHistoryRoute,
+  DashQuestionBankRoute: DashQuestionBankRoute,
+  DashIndexRoute: DashIndexRoute,
+  DashReviewScoreIdRoute: DashReviewScoreIdRoute,
+}
+
+const DashRouteWithChildren = DashRoute._addFileChildren(DashRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  DashRoute: DashRouteWithChildren,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TestRoute: TestRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
