@@ -25,7 +25,6 @@ import {
   ArrowRight,
   ArrowLeft,
   CheckCircle2,
-  X,
 } from "lucide-react";
 import { MODULES, QUESTIONS_BY_MODULE, STUDENT_NAME, type Choice } from "@/data/mock";
 import { getPendingTest } from "@/lib/testStore";
@@ -82,7 +81,6 @@ export function TestPlayer() {
   const [bugOpen, setBugOpen] = useState(false);
   const [dark, setDark] = useState(false);
 
-  const reset = useRef(false);
 
   // Reset timer + local UI on module change
   useEffect(() => {
