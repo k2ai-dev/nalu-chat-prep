@@ -53,7 +53,7 @@ export function DesmosCalculator({ onClose }: { onClose: () => void }) {
     }
     // Fail if the calculator hasn't become ready within 8 seconds.
     const timeout = window.setTimeout(() => {
-      if (!cancelled && !window.Desmos) setLoadError(true);
+      if (!cancelled && !calcRef.current) setLoadError(true);
     }, 8000);
     return () => {
       cancelled = true;
