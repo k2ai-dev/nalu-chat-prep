@@ -10,7 +10,7 @@ import {
   Pause,
   Play,
   Clock,
-  Timer,
+  
   EyeOff,
   Eye,
   Lightbulb,
