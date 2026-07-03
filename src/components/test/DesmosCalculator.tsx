@@ -46,15 +46,22 @@ export function DesmosCalculator({ onClose }: { onClose: () => void }) {
         script.src = DESMOS_SRC;
         script.async = true;
         script.dataset.desmos = "true";
+        script.onerror = () => setLoadError(true);
         document.body.appendChild(script);
       }
       script.addEventListener("load", init);
     }
+    // Fail if the calculator hasn't become ready within 8 seconds.
+    const timeout = window.setTimeout(() => {
+      if (!cancelled && !window.Desmos) setLoadError(true);
+    }, 8000);
     return () => {
       cancelled = true;
+      window.clearTimeout(timeout);
       calcRef.current?.destroy();
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [retry]);
 
   // Resize when the wrapper boundary scale updates.
   useEffect(() => {
