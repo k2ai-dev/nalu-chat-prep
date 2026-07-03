@@ -25,7 +25,7 @@ export type ModuleConfig = {
 export const MODULES: ModuleConfig[] = [
   { index: 0, title: "Section 1, Module 1: Reading and Writing", subject: "Reading & Writing", count: 27, minutes: 32, calculator: false },
   { index: 1, title: "Section 1, Module 2: Reading and Writing", subject: "Reading & Writing", count: 27, minutes: 32, calculator: false },
-  { index: 2, title: "Section 2, Module 1: Math (No Calculator)", subject: "Math", count: 22, minutes: 35, calculator: false },
+  { index: 2, title: "Section 2, Module 1: Math", subject: "Math", count: 22, minutes: 35, calculator: true },
   { index: 3, title: "Section 2, Module 2: Math (Calculator)", subject: "Math", count: 22, minutes: 35, calculator: true },
 ];
 
