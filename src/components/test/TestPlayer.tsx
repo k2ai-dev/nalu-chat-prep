@@ -477,6 +477,15 @@ export function TestPlayer() {
               )}
             </div>
           )}
+
+          {notesOpen && (
+            <textarea
+              value={globalNote}
+              onChange={(e) => setGlobalNote(e.target.value)}
+              placeholder={isMath ? "Scratch notes for this question…" : "Scratch notes for this passage…"}
+              className="mt-4 h-24 w-full resize-none rounded-xl border border-input bg-background p-3 text-sm outline-none focus:border-primary"
+            />
+          )}
         </section>
       </div>
 
