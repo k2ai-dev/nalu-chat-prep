@@ -21,6 +21,8 @@ export function DesmosCalculator({ onClose }: { onClose: () => void }) {
   const calcRef = useRef<{ resize: () => void; destroy: () => void } | null>(null);
   const [pos, setPos] = useState({ x: 120, y: 100 });
   const [ready, setReady] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [retry, setRetry] = useState(0);
   const drag = useRef<{ dx: number; dy: number } | null>(null);
 
   // Load the official Desmos script and initialise the calculator.
