@@ -12,14 +12,17 @@ declare global {
   }
 }
 
+// TODO: swap for our own key from desmos.com/api before scaling — this is Desmos's shared public demo key
 const DESMOS_SRC =
-  "https://www.desmos.com/api/v1.10/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0dd6d";
+  "https://www.desmos.com/api/v1.10/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6";
 
 export function DesmosCalculator({ onClose }: { onClose: () => void }) {
   const graphRef = useRef<HTMLDivElement>(null);
   const calcRef = useRef<{ resize: () => void; destroy: () => void } | null>(null);
   const [pos, setPos] = useState({ x: 120, y: 100 });
   const [ready, setReady] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [retry, setRetry] = useState(0);
   const drag = useRef<{ dx: number; dy: number } | null>(null);
 
   // Load the official Desmos script and initialise the calculator.
@@ -43,15 +46,22 @@ export function DesmosCalculator({ onClose }: { onClose: () => void }) {
         script.src = DESMOS_SRC;
         script.async = true;
         script.dataset.desmos = "true";
+        script.onerror = () => setLoadError(true);
         document.body.appendChild(script);
       }
       script.addEventListener("load", init);
     }
+    // Fail if the calculator hasn't become ready within 8 seconds.
+    const timeout = window.setTimeout(() => {
+      if (!cancelled && !calcRef.current) setLoadError(true);
+    }, 8000);
     return () => {
       cancelled = true;
+      window.clearTimeout(timeout);
       calcRef.current?.destroy();
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [retry]);
 
   // Resize when the wrapper boundary scale updates.
   useEffect(() => {
@@ -94,9 +104,24 @@ export function DesmosCalculator({ onClose }: { onClose: () => void }) {
         </div>
       </div>
       <div ref={graphRef} className="h-[360px] w-full bg-white" />
-      {!ready && (
+      {!ready && !loadError && (
         <div className="absolute inset-x-0 bottom-3 text-center text-xs text-muted-foreground">
           Loading calculator…
+        </div>
+      )}
+      {loadError && (
+        <div className="absolute inset-x-0 bottom-3 flex flex-col items-center gap-2 px-4 text-center text-xs text-destructive">
+          <span>Calculator failed to load — check your connection or ad-blocker</span>
+          <button
+            onClick={() => {
+              setLoadError(false);
+              setReady(false);
+              setRetry((v) => v + 1);
+            }}
+            className="rounded-lg bg-primary px-3 py-1 text-xs font-bold text-primary-foreground hover:opacity-90"
+          >
+            Retry
+          </button>
         </div>
       )}
     </div>
