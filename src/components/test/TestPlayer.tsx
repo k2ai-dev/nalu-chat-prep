@@ -311,9 +311,6 @@ export function TestPlayer() {
             {hideTime ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
             {hideTime ? "Show" : "Hide"}
           </HdrBtn>
-          <HdrBtn onClick={() => setSecondsLeft(moduleMinutes * 60)}>
-            <Timer className="h-4 w-4" /> Set Limit
-          </HdrBtn>
         </div>
 
         {/* Right utilities */}
