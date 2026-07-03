@@ -384,14 +384,6 @@ export function TestPlayer() {
               enabled={highlightTool}
               html={q.passage ?? ""}
             />
-            {notesOpen && (
-              <textarea
-                value={globalNote}
-                onChange={(e) => setGlobalNote(e.target.value)}
-                placeholder="Scratch notes for this passage…"
-                className="mt-4 h-24 w-full resize-none rounded-xl border border-input bg-background p-3 text-sm outline-none focus:border-primary"
-              />
-            )}
           </section>
         )}
 
@@ -484,6 +476,15 @@ export function TestPlayer() {
                 </div>
               )}
             </div>
+          )}
+
+          {notesOpen && (
+            <textarea
+              value={globalNote}
+              onChange={(e) => setGlobalNote(e.target.value)}
+              placeholder={isMath ? "Scratch notes for this question…" : "Scratch notes for this passage…"}
+              className="mt-4 h-24 w-full resize-none rounded-xl border border-input bg-background p-3 text-sm outline-none focus:border-primary"
+            />
           )}
         </section>
       </div>
