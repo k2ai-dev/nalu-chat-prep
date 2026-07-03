@@ -15,7 +15,7 @@ export function ScoreResults({ score }: { score: ScoreData }) {
   const [analyze, setAnalyze] = useState(false);
 
   return (
-    <div className="relative min-h-screen bg-white px-4 py-10">
+    <div className="relative min-h-screen bg-background px-4 py-10">
       <button
         onClick={() => navigate({ to: "/" })}
         className="absolute right-5 top-5 inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-bold hover:bg-accent"
