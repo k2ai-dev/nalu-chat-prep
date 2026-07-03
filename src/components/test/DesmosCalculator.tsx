@@ -104,9 +104,24 @@ export function DesmosCalculator({ onClose }: { onClose: () => void }) {
         </div>
       </div>
       <div ref={graphRef} className="h-[360px] w-full bg-white" />
-      {!ready && (
+      {!ready && !loadError && (
         <div className="absolute inset-x-0 bottom-3 text-center text-xs text-muted-foreground">
           Loading calculator…
+        </div>
+      )}
+      {loadError && (
+        <div className="absolute inset-x-0 bottom-3 flex flex-col items-center gap-2 px-4 text-center text-xs text-destructive">
+          <span>Calculator failed to load — check your connection or ad-blocker</span>
+          <button
+            onClick={() => {
+              setLoadError(false);
+              setReady(false);
+              setRetry((v) => v + 1);
+            }}
+            className="rounded-lg bg-primary px-3 py-1 text-xs font-bold text-primary-foreground hover:opacity-90"
+          >
+            Retry
+          </button>
         </div>
       )}
     </div>
