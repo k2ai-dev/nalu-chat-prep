@@ -208,7 +208,7 @@ export function TestPlayer() {
   // ---------- BREAK SCREEN ----------
   if (phase === "break") {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-white px-4 text-center">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center">
         <p className="text-sm font-semibold uppercase tracking-wide text-primary">Section Break</p>
         <h1 className="mt-2 text-3xl font-extrabold">Take a 10-minute break</h1>
         <p className="mt-2 max-w-md text-muted-foreground">
@@ -228,7 +228,7 @@ export function TestPlayer() {
   // ---------- REVIEW (Check Your Work) ----------
   if (phase === "review") {
     return (
-      <div className="flex min-h-screen flex-col bg-white">
+      <div className="flex min-h-screen flex-col bg-background">
         <div className="border-b border-border px-6 py-4">
           <h1 className="text-lg font-bold">Check Your Work</h1>
           <p className="text-sm text-muted-foreground">{mod.title}</p>
@@ -281,7 +281,7 @@ export function TestPlayer() {
   const elimSet = new Set(eliminated[q.id] ?? []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-background">
       {/* HEADER */}
       <header className="flex items-center gap-3 border-b border-border px-4 py-2.5">
         {/* Left: title + directions */}
@@ -489,7 +489,7 @@ export function TestPlayer() {
       </div>
 
       {/* FOOTER */}
-      <footer className="relative flex items-center justify-between border-t border-border bg-white px-5 py-3">
+      <footer className="relative flex items-center justify-between border-t border-border bg-background px-5 py-3">
         <p className="hidden text-sm font-bold sm:block">{STUDENT_NAME}</p>
 
         <div className="relative">
