@@ -10,7 +10,7 @@ import {
   Pause,
   Play,
   Clock,
-  Timer,
+  
   EyeOff,
   Eye,
   Lightbulb,
@@ -310,9 +310,6 @@ export function TestPlayer() {
           <HdrBtn onClick={() => setHideTime((v) => !v)}>
             {hideTime ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
             {hideTime ? "Show" : "Hide"}
-          </HdrBtn>
-          <HdrBtn onClick={() => setSecondsLeft(moduleMinutes * 60)}>
-            <Timer className="h-4 w-4" /> Set Limit
           </HdrBtn>
         </div>
 
