@@ -569,7 +569,6 @@ export function TestPlayer() {
         </div>
       </footer>
 
-      {calcOpen && <DesmosCalculator onClose={() => setCalcOpen(false)} />}
       {refOpen && <ReferenceSheet onClose={() => setRefOpen(false)} />}
       {bugOpen && <BugReportModal onClose={() => setBugOpen(false)} questionIndex={qIdx + 1} />}
 
