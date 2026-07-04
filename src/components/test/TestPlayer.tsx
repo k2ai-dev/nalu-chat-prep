@@ -384,9 +384,19 @@ export function TestPlayer() {
           </section>
         )}
 
+        {/* Left pane (docked calculator) for Math */}
+        {isMath && calcOpen && (
+          <section
+            className="w-[560px] shrink-0 overflow-y-auto border-r border-border px-4 py-6 no-scrollbar"
+            style={{ maxHeight: "calc(100vh - 130px)" }}
+          >
+            <DesmosCalculator onClose={() => setCalcOpen(false)} />
+          </section>
+        )}
+
         {/* Right pane (question + answers) */}
         <section
-          className={`${isMath ? "mx-auto max-w-2xl w-full" : "w-1/2"} overflow-y-auto px-8 py-6 no-scrollbar`}
+          className={`${isMath ? (calcOpen ? "flex-1" : "mx-auto max-w-2xl w-full") : "w-1/2"} overflow-y-auto px-8 py-6 no-scrollbar`}
           style={{ maxHeight: "calc(100vh - 130px)" }}
         >
           {/* Sub-header: index + mark for review (adjacent) ...... ABC elimination */}
