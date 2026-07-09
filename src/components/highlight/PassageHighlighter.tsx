@@ -11,9 +11,21 @@ const COLORS: { key: HColor; hex: string }[] = [
   { key: "pink", hex: "#f472b6" },
 ];
 
+const DECOS: { key: HDeco; label: string }[] = [
+  { key: "solid", label: "Solid underline" },
+  { key: "dashed", label: "Dashed underline" },
+  { key: "dotted", label: "Dotted underline" },
+  { key: "none", label: "None" },
+];
+
 /**
  * Contextual highlighter using the browser Selection API.
  * Highlights ONLY the exact selected DOM slice (no global string replacement).
+ *
+ * A single highlight can be made of MULTIPLE <mark> elements sharing the same
+ * data-hid, one per intersected text node. This avoids range.surroundContents()
+ * throwing (and falling back to invalid nesting) whenever a selection crosses
+ * element or paragraph boundaries, which is the common case in real passages.
  */
 export function PassageHighlighter({
   html,
@@ -27,19 +39,22 @@ export function PassageHighlighter({
   const [activeId, setActiveId] = useState<string | null>(null);
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const [noteOpen, setNoteOpen] = useState(false);
+  const [decoOpen, setDecoOpen] = useState(false);
 
   const applyStyle = useCallback((m: HMeta) => {
-    const el = containerRef.current?.querySelector<HTMLElement>(`mark[data-hid="${m.id}"]`);
-    if (!el) return;
-    el.dataset.color = m.color;
-    el.dataset.deco = m.deco;
-    el.dataset.note = m.note ? "1" : "0";
-    el.title = m.note ? `Note: ${m.note}` : "";
+    const els = containerRef.current?.querySelectorAll<HTMLElement>(`mark[data-hid="${m.id}"]`);
+    els?.forEach((el) => {
+      el.dataset.color = m.color;
+      el.dataset.deco = m.deco;
+      el.dataset.note = m.note ? "1" : "0";
+      el.title = m.note ? `Note: ${m.note}` : "";
+    });
   }, []);
 
   const openFor = useCallback((id: string, rect: DOMRect) => {
     setActiveId(id);
     setNoteOpen(false);
+    setDecoOpen(false);
     setPos({ x: rect.left + rect.width / 2, y: rect.top });
   }, []);
 
@@ -53,24 +68,59 @@ export function PassageHighlighter({
     if (!range.toString().trim()) return;
 
     const id = `h_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-    const mark = document.createElement("mark");
-    mark.dataset.hid = id;
-    mark.dataset.color = "yellow";
-    mark.dataset.deco = "none";
-    mark.dataset.note = "0";
-    try {
-      range.surroundContents(mark);
-    } catch {
-      mark.appendChild(range.extractContents());
-      range.insertNode(mark);
+
+    const walker = document.createTreeWalker(
+      range.commonAncestorContainer,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode: (node) =>
+          range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT,
+      }
+    );
+    const textNodes: Text[] = [];
+    let n = walker.nextNode();
+    while (n) {
+      textNodes.push(n as Text);
+      n = walker.nextNode();
     }
-    const rect = mark.getBoundingClientRect();
+
+    if (textNodes.length === 0 && range.commonAncestorContainer.nodeType === Node.TEXT_NODE) {
+      textNodes.push(range.commonAncestorContainer as Text);
+    }
+
+    let firstMark: HTMLElement | null = null;
+    textNodes.forEach((textNode) => {
+      const nodeRange = document.createRange();
+      nodeRange.selectNodeContents(textNode);
+      if (textNode === range.startContainer) nodeRange.setStart(textNode, range.startOffset);
+      if (textNode === range.endContainer) nodeRange.setEnd(textNode, range.endOffset);
+      if (nodeRange.collapsed || !nodeRange.toString().trim()) return;
+
+      const mark = document.createElement("mark");
+      mark.dataset.hid = id;
+      mark.dataset.color = "yellow";
+      mark.dataset.deco = "none";
+      mark.dataset.note = "0";
+      try {
+        nodeRange.surroundContents(mark);
+      } catch {
+        mark.appendChild(nodeRange.extractContents());
+        nodeRange.insertNode(mark);
+      }
+      if (!firstMark) firstMark = mark;
+    });
+
+    if (!firstMark) {
+      sel.removeAllRanges();
+      return;
+    }
+
+    const rect = (firstMark as HTMLElement).getBoundingClientRect();
     setMeta((prev) => ({ ...prev, [id]: { id, color: "yellow", deco: "none", note: "" } }));
     openFor(id, rect);
     sel.removeAllRanges();
   }, [enabled, openFor]);
 
-  // Delegate clicks on existing marks to reopen the tooltip
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -85,13 +135,13 @@ export function PassageHighlighter({
     return () => container.removeEventListener("click", handler);
   }, [openFor]);
 
-  // Close tooltip on outside click
   useEffect(() => {
     const close = (e: MouseEvent) => {
       const t = e.target as HTMLElement;
       if (t.closest("[data-hl-tooltip]") || t.closest("mark[data-hid]")) return;
       setActiveId(null);
       setPos(null);
+      setDecoOpen(false);
     };
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
@@ -106,22 +156,16 @@ export function PassageHighlighter({
     });
   }
 
-  function cycleDeco() {
-    if (!activeId) return;
-    const order: HDeco[] = ["none", "solid", "dashed", "dotted"];
-    const cur = meta[activeId]?.deco ?? "none";
-    update({ deco: order[(order.indexOf(cur) + 1) % order.length] });
-  }
-
   function remove() {
     if (!activeId) return;
-    const el = containerRef.current?.querySelector<HTMLElement>(`mark[data-hid="${activeId}"]`);
-    if (el?.parentNode) {
+    const els = containerRef.current?.querySelectorAll<HTMLElement>(`mark[data-hid="${activeId}"]`);
+    els?.forEach((el) => {
       const parent = el.parentNode;
+      if (!parent) return;
       while (el.firstChild) parent.insertBefore(el.firstChild, el);
       parent.removeChild(el);
       parent.normalize();
-    }
+    });
     setMeta((prev) => {
       const n = { ...prev };
       delete n[activeId];
@@ -129,6 +173,7 @@ export function PassageHighlighter({
     });
     setActiveId(null);
     setPos(null);
+    setDecoOpen(false);
   }
 
   const active = activeId ? meta[activeId] : null;
@@ -162,15 +207,48 @@ export function PassageHighlighter({
                 />
               ))}
               <span className="mx-0.5 h-6 w-px bg-border" />
-              <button
-                onClick={cycleDeco}
-                className={`flex h-7 w-7 items-center justify-center rounded-lg text-sm font-bold transition-colors ${
-                  active.deco !== "none" ? "bg-primary text-primary-foreground" : "hover:bg-accent"
-                }`}
-                title={`Underline: ${active.deco}`}
-              >
-                <Underline className="h-4 w-4" />
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setDecoOpen((v) => !v)}
+                  className={`flex h-7 w-7 items-center justify-center rounded-lg text-sm font-bold transition-colors ${
+                    active.deco !== "none" ? "bg-primary text-primary-foreground" : "hover:bg-accent"
+                  }`}
+                  title={`Underline: ${active.deco}`}
+                >
+                  <Underline className="h-4 w-4" />
+                </button>
+                {decoOpen && (
+                  <div className="absolute left-1/2 top-full z-10 mt-1 flex w-36 -translate-x-1/2 flex-col gap-0.5 rounded-lg border border-border bg-popover p-1 shadow-[var(--shadow-float)]">
+                    {DECOS.map((d) => (
+                      <button
+                        key={d.key}
+                        onClick={() => {
+                          update({ deco: d.key });
+                          setDecoOpen(false);
+                        }}
+                        className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors hover:bg-accent ${
+                          active.deco === d.key ? "bg-accent font-medium" : ""
+                        }`}
+                      >
+                        {d.key === "none" ? (
+                          <span className="w-6 text-center">—</span>
+                        ) : (
+                          <span
+                            className="w-6 border-b-2 text-center"
+                            style={{
+                              borderBottomStyle: d.key,
+                              borderBottomColor: "currentColor",
+                            }}
+                          >
+                            &nbsp;
+                          </span>
+                        )}
+                        {d.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               <button
                 onClick={() => setNoteOpen((v) => !v)}
                 className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors ${

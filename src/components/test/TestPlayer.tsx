@@ -46,12 +46,23 @@ export function TestPlayer() {
   const navigate = useNavigate();
   const config = getPendingTest();
 
-  const [moduleIdx, setModuleIdx] = useState(0);
-  const [qIdx, setQIdx] = useState(0);
-  const [phase, setPhase] = useState<"question" | "review" | "break">("question");
-  const [answers, setAnswers] = useState<Record<string, Label>>({});
-  const [marked, setMarked] = useState<Record<string, boolean>>({});
-  const [eliminated, setEliminated] = useState<Record<string, Label[]>>({});
+  const SAVE_KEY = "naluprep:test-attempt";
+
+  const restored = (() => {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  })();
+
+  const [moduleIdx, setModuleIdx] = useState(restored?.moduleIdx ?? 0);
+  const [qIdx, setQIdx] = useState(restored?.qIdx ?? 0);
+  const [phase, setPhase] = useState<"question" | "review" | "break">(restored?.phase ?? "question");
+  const [answers, setAnswers] = useState<Record<string, Label>>(restored?.answers ?? {});
+  const [marked, setMarked] = useState<Record<string, boolean>>(restored?.marked ?? {});
+  const [eliminated, setEliminated] = useState<Record<string, Label[]>>(restored?.eliminated ?? {});
   const [eliminateMode, setEliminateMode] = useState(false);
   const [results, setResults] = useState<ScoreData | null>(null);
 
@@ -63,7 +74,7 @@ export function TestPlayer() {
       ? config.customMinutes
       : mod.minutes;
 
-  const [secondsLeft, setSecondsLeft] = useState(moduleMinutes * 60);
+  const [secondsLeft, setSecondsLeft] = useState(restored?.secondsLeft ?? moduleMinutes * 60);
   const [paused, setPaused] = useState(false);
   const [hideTime, setHideTime] = useState(false);
   const [breakLeft, setBreakLeft] = useState(600);
@@ -184,6 +195,11 @@ export function TestPlayer() {
 
   function continueFromReview() {
     if (moduleIdx === 3) {
+      try {
+        localStorage.removeItem(SAVE_KEY);
+      } catch {
+        // ignore — nothing to clean up if storage isn't available
+      }
       setResults(computeScore());
     } else if (moduleIdx === 1) {
       setBreakLeft(600);
@@ -351,7 +367,28 @@ export function TestPlayer() {
                 <MenuItem icon={dark ? Sun : Moon} onClick={() => setDark((v) => !v)}>
                   {dark ? "Light theme" : "Dark theme"}
                 </MenuItem>
-                <MenuItem icon={LogOut} onClick={() => navigate({ to: "/" })}>
+                <MenuItem
+                  icon={LogOut}
+                  onClick={() => {
+                    const snapshot = {
+                      moduleIdx,
+                      qIdx,
+                      phase,
+                      answers,
+                      marked,
+                      eliminated,
+                      secondsLeft,
+                      savedAt: Date.now(),
+                    };
+                    try {
+                      localStorage.setItem(SAVE_KEY, JSON.stringify(snapshot));
+                    } catch {
+                      // localStorage unavailable (private mode, quota, etc.) —
+                      // exit still works, just without resume support this time.
+                    }
+                    navigate({ to: "/" });
+                  }}
+                >
                   Save and Exit
                 </MenuItem>
                 <MenuItem icon={Bug} onClick={() => { setBugOpen(true); setMoreOpen(false); }}>
